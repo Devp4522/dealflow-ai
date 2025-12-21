@@ -108,7 +108,7 @@ export function Pricing() {
             transition={{ delay: 0.1 }}
             className="section-subtitle mx-auto"
           >
-            Choose the plan that fits your deal flow. All plans include a 14-day free trial.
+            Choose the plan that fits your deal flow.
           </motion.p>
 
           {/* Billing Toggle */}

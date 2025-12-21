@@ -63,9 +63,6 @@ export function Header() {
           <Button variant="outline" size="sm" className="rounded-full">
             Sign up
           </Button>
-          <Button className="btn-cta text-sm px-5 py-2">
-            Start for free
-          </Button>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -104,9 +101,6 @@ export function Header() {
                 </Button>
                 <Button variant="outline" className="rounded-full justify-start">
                   Sign up
-                </Button>
-                <Button className="btn-cta">
-                  Start for free
                 </Button>
               </div>
             </nav>

@@ -47,10 +47,6 @@ export function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button className="btn-cta group">
-                Start for free
-                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Button>
               <Button variant="outline" className="btn-outline group">
                 <Play className="mr-2 w-4 h-4" />
                 Request a demo
