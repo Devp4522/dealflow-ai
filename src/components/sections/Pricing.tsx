@@ -18,7 +18,7 @@ const plans = [
       'Standard analytics dashboard',
       'Email support',
     ],
-    cta: 'Start for free',
+    cta: 'Upgrade',
     popular: false,
   },
   {
@@ -35,7 +35,7 @@ const plans = [
       'Custom M&A playbooks',
       'Priority support',
     ],
-    cta: 'Start free trial',
+    cta: 'Upgrade',
     popular: true,
   },
   {
@@ -53,7 +53,7 @@ const plans = [
       'Dedicated success manager',
       '24/7 phone support',
     ],
-    cta: 'Contact sales',
+    cta: 'Book a Demo',
     popular: false,
   },
 ];
