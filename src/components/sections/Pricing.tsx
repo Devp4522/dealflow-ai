@@ -148,7 +148,7 @@ export function Pricing() {
             <motion.div
               key={plan.name}
               variants={itemVariants}
-              className={`pricing-card relative ${plan.popular ? 'ring-2 ring-accent' : ''}`}
+              className={`pricing-card relative flex flex-col h-full ${plan.popular ? 'ring-2 ring-accent' : ''}`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-xs font-medium rounded-full">
@@ -176,7 +176,7 @@ export function Pricing() {
                 {plan.description}
               </p>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-sm text-primary-foreground/80">
                     <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
@@ -186,7 +186,7 @@ export function Pricing() {
               </ul>
 
               <Button
-                className={`w-full rounded-full ${
+                className={`w-full rounded-full mt-auto ${
                   plan.popular
                     ? 'bg-accent text-accent-foreground hover:bg-accent/90'
                     : 'bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border border-primary-foreground/20'
