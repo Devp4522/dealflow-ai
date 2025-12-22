@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ContactFormModalProps {
   open: boolean;
@@ -25,17 +26,34 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          message: formData.message || null,
+        });
 
-    toast({
-      title: "Demo request submitted!",
-      description: "We'll get back to you within 24 hours.",
-    });
+      if (error) throw error;
 
-    setFormData({ name: '', email: '', company: '', message: '' });
-    setIsSubmitting(false);
-    onOpenChange(false);
+      toast({
+        title: "Demo request submitted!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      setFormData({ name: '', email: '', company: '', message: '' });
+      onOpenChange(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Submission failed",
+        description: "Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
