@@ -6,6 +6,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
+
+// Client-side validation schema
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  company: z.string().trim().min(1, "Company is required").max(200, "Company must be less than 200 characters"),
+  message: z.string().max(2000, "Message must be less than 2000 characters").optional(),
+});
 
 interface ContactFormModalProps {
   open: boolean;
@@ -21,22 +30,49 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
     company: '',
     message: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsSubmitting(true);
 
+    // Client-side validation
+    const result = contactSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          company: formData.company,
-          message: formData.message || null,
-        });
+      // Call edge function for server-side validation and storage
+      const { data, error } = await supabase.functions.invoke('submit-contact', {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          company: formData.company.trim(),
+          message: formData.message.trim() || null,
+        },
+      });
 
       if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: data.error,
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       toast({
         title: "Demo request submitted!",
@@ -57,7 +93,12 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
   return (
@@ -79,8 +120,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               placeholder="John Smith"
               value={formData.name}
               onChange={handleChange}
-              required
+              maxLength={100}
+              aria-invalid={!!errors.name}
             />
+            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
           </div>
 
           <div className="space-y-2">
@@ -92,8 +135,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               placeholder="john@company.com"
               value={formData.email}
               onChange={handleChange}
-              required
+              maxLength={255}
+              aria-invalid={!!errors.email}
             />
+            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -104,8 +149,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               placeholder="Acme Corp"
               value={formData.company}
               onChange={handleChange}
-              required
+              maxLength={200}
+              aria-invalid={!!errors.company}
             />
+            {errors.company && <p className="text-sm text-destructive">{errors.company}</p>}
           </div>
 
           <div className="space-y-2">
@@ -117,7 +164,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               value={formData.message}
               onChange={handleChange}
               rows={3}
+              maxLength={2000}
+              aria-invalid={!!errors.message}
             />
+            {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
           </div>
 
           <Button type="submit" className="w-full btn-cta" disabled={isSubmitting}>
