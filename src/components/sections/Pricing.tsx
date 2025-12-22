@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Rocket, Award, Building, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { ContactFormModal } from '@/components/ContactFormModal';
 
 const plans = [
   {
@@ -79,6 +80,7 @@ const itemVariants = {
 
 export function Pricing() {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <section id="pricing" className="section-padding bg-secondary/30">
@@ -186,6 +188,7 @@ export function Pricing() {
               </ul>
 
               <Button
+                onClick={plan.cta === 'Book a Demo' ? () => setIsModalOpen(true) : undefined}
                 className={`w-full rounded-full mt-auto ${
                   plan.popular
                     ? 'bg-accent text-accent-foreground hover:bg-accent/90'
@@ -197,6 +200,8 @@ export function Pricing() {
             </motion.div>
           ))}
         </motion.div>
+
+        <ContactFormModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 
         {/* Bottom CTA */}
         <motion.p
