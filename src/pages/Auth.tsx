@@ -7,6 +7,25 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet-async';
 
+const getAuthErrorMessage = (error: any): string => {
+  const errorMap: Record<string, string> = {
+    'User already registered': 'This email is already registered. Please log in instead.',
+    'Invalid login credentials': 'Invalid email or password. Please try again.',
+    'Email not confirmed': 'Please verify your email before logging in.',
+    'Too many requests': 'Too many attempts. Please try again in a few minutes.',
+    'Password should be at least': 'Password must be at least 6 characters long.',
+    'Signup is disabled': 'Account registration is currently disabled.',
+    'Invalid email': 'Please enter a valid email address.',
+  };
+  
+  for (const [key, value] of Object.entries(errorMap)) {
+    if (error.message?.includes(key)) return value;
+  }
+  
+  // Return generic message for unmapped errors to prevent information leakage
+  return 'An error occurred. Please try again later.';
+};
+
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -62,10 +81,7 @@ const Auth = () => {
         setIsLogin(true);
       }
     } catch (error: any) {
-      let message = error.message;
-      if (error.message.includes('User already registered')) {
-        message = 'This email is already registered. Please log in instead.';
-      }
+      const message = getAuthErrorMessage(error);
       toast({
         variant: "destructive",
         title: "Error",
